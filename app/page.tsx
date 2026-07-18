@@ -1,4 +1,4 @@
-import Form from "@/app/ui/form";
+import Shortener from "@/app/ui/shortener/shortener";
 
 export default function Page() {
   return (
@@ -10,7 +10,7 @@ export default function Page() {
         <p className="mx-auto mt-5 max-w-xl text-lg leading-8 text-zinc-600">
           Paste a long URL and get a clean Linvoke short link
         </p>
-        <Form />
+        <Shortener />
       </section>
     </main>
   );
