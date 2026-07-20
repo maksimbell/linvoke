@@ -1,4 +1,5 @@
 import SignupForm from "@/app/ui/auth/signup";
+import Link from "next/link";
 
 export default function Page() {
   return (
@@ -10,8 +11,12 @@ export default function Page() {
             Create your account
           </h1>
           <p className="mt-3 text-base leading-7 text-zinc-600">
-            Save links, manage them later, and unlock analytics when they are
-            ready.
+            Already have an account?{" "}
+            <Link
+              href="/login"
+              className="inline-flex whitespace-nowrap font-semibold text-zinc-950 underline-offset-4 transition hover:underline">
+              Log in
+            </Link>
           </p>
         </div>
         <SignupForm />

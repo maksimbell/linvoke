@@ -3,10 +3,15 @@ import { cache } from "react";
 import { decrypt } from "./sessions";
 import { redirect } from "next/navigation";
 import { neon } from "@neondatabase/serverless";
+import { User } from "./definitions";
 
 const sql = neon(`${process.env.DATABASE_URL}`);
 
-const verifySession = cache(async () => {
+type VerifiedSession = {
+  userId: string;
+};
+
+const verifySession = cache(async (): Promise<VerifiedSession | null> => {
   const cookie = (await cookies()).get("session")?.value;
   const session = await decrypt(cookie);
 
@@ -26,14 +31,14 @@ const verifySession = cache(async () => {
     }
 
     const userId = data[0].user_id;
-    return { isAuth: true, userId };
+    return { userId };
   } catch {
     console.log("Failed to fetch user session");
     return null;
   }
 });
 
-const getUser = cache(async () => {
+export const getUser = cache(async (): Promise<User | null> => {
   const session = await verifySession();
   if (!session) return null;
 
@@ -43,15 +48,25 @@ const getUser = cache(async () => {
     WHERE id = ${session.userId}
     LIMIT 1`;
 
-    const user = data[0] || null;
-    return user;
+    const user = data[0];
+
+    if (!user) {
+      return null;
+    }
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.created_at,
+    };
   } catch {
     console.log("Failed to fetch user");
     return null;
   }
 });
 
-export const requireUser = cache(async () => {
+export const requireUser = cache(async (): Promise<User> => {
   const user = await getUser();
 
   if (!user) redirect("/login");

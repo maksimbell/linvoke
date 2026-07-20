@@ -2,10 +2,15 @@
 
 import { neon } from "@neondatabase/serverless";
 import { generateSlug } from "./slug";
-import { FormState, LoginFormSchema, SignupFormSchema } from "./definitions";
+import {
+  AuthFormState,
+  LoginFormSchema,
+  SignupFormSchema,
+} from "./definitions";
 import { createSession } from "./sessions";
 import bcrypt from "bcrypt";
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 
 const sql = neon(`${process.env.DATABASE_URL}`);
 
@@ -19,7 +24,10 @@ export async function createLink(formdata: FormData): Promise<string> {
   return slug;
 }
 
-export async function signup(state: FormState, formData: FormData) {
+export async function signup(
+  state: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
   const validatedFields = SignupFormSchema.safeParse({
     name: formData.get("name"),
     email: formData.get("email"),
@@ -60,7 +68,15 @@ export async function signup(state: FormState, formData: FormData) {
   redirect("/");
 }
 
-export async function login(state: FormState, formData: FormData) {
+type UserWithPassword = {
+  id: string;
+  password_hash: string;
+};
+
+export async function login(
+  state: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
   const validatedFields = LoginFormSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
@@ -79,13 +95,14 @@ export async function login(state: FormState, formData: FormData) {
             WHERE email = ${email}
             LIMIT 1`;
 
-    if (!data[0]) {
+    user = data[0] as UserWithPassword | undefined;
+
+    if (!user) {
       return {
         message: "Invalid email or password.",
       };
     }
 
-    user = data[0];
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
       return {
@@ -99,5 +116,11 @@ export async function login(state: FormState, formData: FormData) {
   }
 
   await createSession(user.id);
+  redirect("/");
+}
+
+export async function logout() {
+  const cookieStore = await cookies();
+  cookieStore.delete("session");
   redirect("/");
 }

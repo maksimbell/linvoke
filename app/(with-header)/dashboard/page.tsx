@@ -1,4 +1,4 @@
-import { requireUser } from "../lib/dal";
+import { requireUser } from "../../lib/dal";
 
 export default async function Page() {
   const { name } = await requireUser();

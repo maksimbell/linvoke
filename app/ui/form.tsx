@@ -2,11 +2,11 @@
 
 import { createLink } from "@/app/lib/actions";
 
-type TProps = {
+type Props = {
   onCreate(slug: string): void;
 };
 
-export default function Form({ onCreate }: TProps) {
+export default function Form({ onCreate }: Props) {
   const handleCreateLink = async (formdata: FormData) => {
     const slug = await createLink(formdata);
     onCreate(slug);
