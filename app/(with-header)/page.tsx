@@ -2,7 +2,7 @@ import Shortener from "@/app/ui/shortener/shortener";
 
 export default function Page() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-50 px-6 py-12 text-zinc-950">
+    <main className="flex h-full items-center justify-center bg-stone-50 px-6 py-12 text-zinc-950">
       <section className="w-full max-w-2xl text-center">
         <h1 className="text-5xl font-semibold tracking-normal sm:text-6xl">
           Simplify your links
