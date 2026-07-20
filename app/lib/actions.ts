@@ -2,9 +2,10 @@
 
 import { neon } from "@neondatabase/serverless";
 import { generateSlug } from "./slug";
-import { FormState, SignupFormSchema } from "./definitions";
+import { FormState, LoginFormSchema, SignupFormSchema } from "./definitions";
 import { createSession } from "./sessions";
 import bcrypt from "bcrypt";
+import { redirect } from "next/navigation";
 
 const sql = neon(`${process.env.DATABASE_URL}`);
 
@@ -56,4 +57,47 @@ export async function signup(state: FormState, formData: FormData) {
   }
 
   await createSession(user.id);
+  redirect("/");
+}
+
+export async function login(state: FormState, formData: FormData) {
+  const validatedFields = LoginFormSchema.safeParse({
+    email: formData.get("email"),
+    password: formData.get("password"),
+  });
+
+  if (!validatedFields.success) {
+    return { errors: validatedFields.error.flatten().fieldErrors };
+  }
+
+  const { email, password } = validatedFields.data;
+  let user = null;
+
+  try {
+    const data = await sql`SELECT id, password_hash 
+            FROM users
+            WHERE email = ${email}
+            LIMIT 1`;
+
+    if (!data[0]) {
+      return {
+        message: "Invalid email or password.",
+      };
+    }
+
+    user = data[0];
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatch) {
+      return {
+        message: "Invalid email or password.",
+      };
+    }
+  } catch {
+    return {
+      message: "An error occurred while entering your account.",
+    };
+  }
+
+  await createSession(user.id);
+  redirect("/");
 }

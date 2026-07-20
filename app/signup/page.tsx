@@ -1,4 +1,4 @@
-import SignUpForm from "@/app/ui/auth/signup";
+import SignupForm from "@/app/ui/auth/signup";
 
 export default function Page() {
   return (
@@ -14,7 +14,7 @@ export default function Page() {
             ready.
           </p>
         </div>
-        <SignUpForm />
+        <SignupForm />
       </section>
     </main>
   );

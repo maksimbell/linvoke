@@ -3,7 +3,7 @@
 import { signup } from "@/app/lib/actions";
 import { useActionState } from "react";
 
-export default function SignUpForm() {
+export default function SignupForm() {
   const [state, action, pending] = useActionState(signup, undefined);
 
   return (
